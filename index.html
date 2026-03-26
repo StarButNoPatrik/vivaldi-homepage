@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Start Page </title>
+<title>Homepage</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700&family=Pacifico&family=DM+Serif+Display&family=Press+Start+2P&display=swap" rel="stylesheet">
 
@@ -116,7 +116,11 @@ body.dark input,
 body.dark .todo li span,
 body.dark .mini,
 body.dark .note,
-body.dark .todo{
+body.dark .todo,
+body.dark .weather,
+body.dark .weather *,
+body.dark .window,
+body.dark .window *:not(.icon):not(.delete-icon){
   color:#111 !important;
 }
 
@@ -210,7 +214,51 @@ body.dark .engine-dropdown span:hover{background:rgba(255,255,255,0.08)}
 body.dark .engine-dropdown span::after{background:#222;color:#fff}
 
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.icon{position:relative;background:#ffffffcc;border-radius:12px;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:.2s;animation: float 4s ease-in-out infinite}
+.icon{position:relative;background:#ffffffcc;border-radius:12px;height:48px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:.2s;animation: float 4s ease-in-out infinite; z-index:5;}
+
+/* DELETE BUTTON */
+.icon .delete-icon{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:#ff6b6b;
+  color:#fff;
+  font-size:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  opacity:0;
+  transform:scale(0.7);
+  transition:0.2s;
+  z-index:10;
+}
+
+.icon:hover .delete-icon{
+  opacity:1;
+  transform:scale(1);
+}
+
+/* FIX PLUS BUTTON VISIBILITY */
+.add-btn{
+  font-size:22px;
+  color:#6b5cff;
+  background:#f0eaff;
+  font-weight:700;
+  animation:none !important;
+  opacity:0;
+  transform:scale(0.8);
+  transition:0.2s;
+}
+
+/* show only when hovering empty space */
+.grid:hover .add-btn{
+  opacity:1;
+  transform:scale(1);
+}
 
 .icon::after{
   content: attr(data-label);
@@ -316,7 +364,15 @@ body.dark .icon:hover{box-shadow:0 0 18px rgba(255,255,255,0.6),0 0 35px rgba(17
   flex-direction:column;
   align-items:center;
   text-align:center;
+  z-index:2;
 }
+.weather .icon{
+  font-size:26px;
+  margin-bottom:4px;
+}
+.weather .temp{font-size:22px;font-weight:700}
+.weather .city{font-size:12px;opacity:0.7}
+.weather .cond{font-size:12px;opacity:0.8}
 .weather .icon{
   font-size:26px;
   margin-bottom:4px;
@@ -476,6 +532,25 @@ body.dark .ai-dropdown span::after{
   flex:1;border:none;background:transparent;outline:none;font-size:14px;
 }
 
+/* ICON PICKER */
+.icon-picker{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:6px}
+.icon-picker span{cursor:pointer;padding:6px;border-radius:8px;text-align:center}
+.icon-picker span:hover{background:#eee}
+
+/* FOLDER POPUP */
+.folder-popup{
+ position:fixed;
+ background:#fff;
+ border-radius:16px;
+ padding:10px;
+ box-shadow:0 10px 30px rgba(0,0,0,0.2);
+ display:none;
+ flex-wrap:wrap;
+ gap:8px;
+ z-index:9999;
+}
+.folder-popup .icon{width:48px;height:48px}
+
 </style>
 </head>
 <body>
@@ -541,6 +616,7 @@ for(let i=0;i<60;i++){let s=document.createElement('div');s.className='star';s.s
         <div class="icon" onclick="openSite('https://xprime.su/')" data-label="XPrime">📺</div>
         <div class="icon" onclick="openSite('https://www.cineby.gd/')" data-label="Cineby">🎞️</div>
         <div class="icon" onclick="openSite('https://www.netflix.com/')" data-label="Netflix"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" style="width:22px;height:22px;object-fit:contain;"></div>
+        <div class="icon add-btn">➕</div>
       </div>
     </div>
 
@@ -552,6 +628,7 @@ for(let i=0;i<60;i++){let s=document.createElement('div');s.className='star';s.s
         <div class="icon" onclick="openSite('https://x.com')" data-label="X">🐦</div>
         <div class="icon" onclick="openSite('https://web.whatsapp.com')" data-label="WhatsApp">💬</div>
         <div class="icon" onclick="openSite('https://reddit.com')" data-label="Reddit">👽</div>
+        <div class="icon add-btn">➕</div>
       </div>
     </div>
 
@@ -563,6 +640,7 @@ for(let i=0;i<60;i++){let s=document.createElement('div');s.className='star';s.s
         <div class="icon" onclick="openSite('https://9anime.org.lv/')" data-label="9Anime">🍥</div>
         <div class="icon" onclick="openSite('https://kissanime.cfd/')" data-label="KissAnime">💮</div>
         <div class="icon" onclick="openSite('https://animeflix.app/')" data-label="AnimeFlix">✨</div>
+        <div class="icon add-btn">➕</div>
       </div>
     </div>
     </div>
@@ -586,6 +664,20 @@ for(let i=0;i<60;i++){let s=document.createElement('div');s.className='star';s.s
     </div>
   </div>
 
+</div>
+
+<!-- EMAIL RPG WIDGET -->
+<div class="window" style="position:fixed; right:30px; top:330px; width:220px;">
+  <div class="header"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+  <div class="title">📜 Mail Quest</div>
+  <div style="font-size:12px; line-height:1.6;">
+    <div>📩 Inbox: <b>3 new</b></div>
+    <div>⭐ Priority: 1</div>
+    <div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">
+      <button onclick="openSite('https://mail.google.com')" style="border:none;padding:6px;border-radius:10px;background:#ffd6e7;cursor:pointer;">Open Gmail</button>
+      <button onclick="openSite('https://outlook.live.com')" style="border:none;padding:6px;border-radius:10px;background:#d6eaff;cursor:pointer;">Open Outlook</button>
+    </div>
+  </div>
 </div>
 
 <div class="window note">
@@ -691,26 +783,57 @@ function toggleVinyl(){
 function nextTrack(){}
 function prevTrack(){}
 
-// WEATHER (simple)
-async function loadWeather(){
+// WEATHER (premium upgrade)
+async function loadWeather(lat=22.72, lon=88.48){
   try{
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=22.72&longitude=88.48&current_weather=true');
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
     const data = await res.json();
-    document.getElementById('temp').innerText = Math.round(data.current_weather.temperature)+'°C';
-    document.getElementById('cond').innerText = 'Wind '+data.current_weather.windspeed+' km/h';
 
+    const temp = Math.round(data.current_weather.temperature);
+    const wind = data.current_weather.windspeed;
     const code = data.current_weather.weathercode;
-    const icon = document.getElementById('wIcon');
-    if(code===0) icon.innerText='☀️';
-    else if(code<3) icon.innerText='⛅';
-    else if(code<50) icon.innerText='☁️';
-    else if(code<70) icon.innerText='🌧️';
-    else icon.innerText='⛈️';
+
+    document.getElementById('temp').innerText = temp + '°C';
+
+    // condition mapping
+    let condText = '';
+    let iconText = '';
+
+    if(code === 0){ condText='Clear'; iconText='☀️'; }
+    else if(code <= 2){ condText='Partly Cloudy'; iconText='⛅'; }
+    else if(code <= 3){ condText='Cloudy'; iconText='☁️'; }
+    else if(code < 50){ condText='Foggy'; iconText='🌫️'; }
+    else if(code < 70){ condText='Rainy'; iconText='🌧️'; }
+    else if(code < 80){ condText='Snow'; iconText='❄️'; }
+    else { condText='Storm'; iconText='⛈️'; }
+
+    document.getElementById('cond').innerText = condText + ' • Wind ' + wind + ' km/h';
+    document.getElementById('wIcon').innerText = iconText;
+
   }catch(e){
     document.getElementById('cond').innerText='Unavailable';
   }
 }
-loadWeather();
+
+// try auto-detect location
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(pos=>{
+    loadWeather(pos.coords.latitude, pos.coords.longitude);
+  }, ()=> loadWeather());
+}else{
+  loadWeather();
+}
+
+// auto refresh every 5 min
+setInterval(()=>{
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      loadWeather(pos.coords.latitude, pos.coords.longitude);
+    }, ()=> loadWeather());
+  }else{
+    loadWeather();
+  }
+}, 300000);
 
 // AI SEARCH
 let currentAI='chatgpt';
@@ -733,6 +856,290 @@ document.getElementById('aiInput').addEventListener('keypress',e=>{
     else url='https://www.perplexity.ai/search?q='+q;
     window.open(url,'_blank');
   }
+});
+
+// BOOKMARK ADD SYSTEM (with persistence)
+function saveBookmarks(){
+  const data={movies:[],social:[],anime:[]};
+  document.querySelectorAll('.window.small').forEach(win=>{
+    const title=win.querySelector('.title').innerText.toLowerCase();
+    const key=title.includes('movies')?'movies':title.includes('social')?'social':'anime';
+    const icons=[...win.querySelectorAll('.icon:not(.add-btn)')];
+
+    // SAVE ONLY USER-ADDED (has dataset.url)
+    data[key]=icons
+      .filter(i=>i.dataset.url)
+      .map(i=>({
+        name:i.getAttribute('data-label'),
+        url:i.dataset.url||'',
+        icon:i.innerHTML
+      }));
+  });
+  localStorage.setItem('bookmarks',JSON.stringify(data));
+}
+
+function loadBookmarks(){
+  const data=JSON.parse(localStorage.getItem('bookmarks')||'{}');
+
+  document.querySelectorAll('.window.small').forEach(win=>{
+    const title=win.querySelector('.title').innerText.toLowerCase();
+    const key=title.includes('movies')?'movies':title.includes('social')?'social':'anime';
+
+    const grid=win.querySelector('.grid');
+    const addBtn=grid.querySelector('.add-btn');
+
+    // 🔥 CLEAR ONLY USER-ADDED ICONS (avoid duplication bug)
+    grid.querySelectorAll('.icon').forEach(icon=>{
+      if(icon.dataset.url){
+        icon.remove();
+      }
+    });
+
+    if(!data[key]) return;
+
+    data[key].forEach(b=>{
+      const icon=document.createElement('div');
+      icon.className='icon';
+      icon.innerHTML = b.icon || '🔗';
+
+      const del=document.createElement('div');
+      del.className='delete-icon';
+      del.innerText='✕';
+      del.onclick=(e)=>{
+        e.stopPropagation();
+        icon.remove();
+        saveBookmarks();
+        updateAddVisibility();
+      };
+
+      icon.appendChild(del);
+      icon.setAttribute('data-label',b.name);
+      icon.dataset.url=b.url;
+      icon.onclick=()=>openSite(b.url);
+
+      grid.insertBefore(icon, addBtn);
+    });
+  });
+}
+
+function getLimitForWindow(win){
+  const title = win.querySelector('.title').innerText.toLowerCase();
+  if(title.includes('movies')) return 6; // 5 base + 1 slot
+  if(title.includes('social')) return 5; // 4 base + 1 slot
+  if(title.includes('anime')) return 5;  // 4 base + 1 slot
+  return 6;
+}
+
+function updateAddVisibility(){
+  document.querySelectorAll('.window.small').forEach(win=>{
+    const grid = win.querySelector('.grid');
+    const addBtn = grid.querySelector('.add-btn');
+    const limit = getLimitForWindow(win);
+    const count = grid.querySelectorAll('.icon:not(.add-btn)').length;
+
+    // App-grid style: reserve last slot for +, hide when full
+    if(count >= limit){
+      addBtn.style.display = 'none';
+    } else {
+      addBtn.style.display = 'flex';
+    }
+  });
+}
+
+function addBookmark(el){
+  const emojiSet=['🌐','🎬','🍿','📺','💻','📸','💬','👽','✨','🎮','📧','🔗'];
+  const grid = el.parentNode;
+  const win = grid.closest('.window');
+  const limit = getLimitForWindow(win);
+  const currentCount = grid.querySelectorAll('.icon:not(.add-btn)').length;
+
+  if(currentCount >= limit){
+    // subtle feedback instead of alert (premium feel)
+    el.style.transform = 'scale(0.9)';
+    setTimeout(()=> el.style.transform = '', 120);
+    return;
+  }
+
+  const modal=document.createElement('div');
+  modal.style.position='fixed';
+  modal.style.inset='0';
+  modal.style.background='rgba(0,0,0,0.45)';
+  modal.style.display='flex';
+  modal.style.alignItems='center';
+  modal.style.justifyContent='center';
+  modal.style.zIndex='9999';
+
+  modal.innerHTML=`
+    <div style="background:#fff;padding:20px;border-radius:20px;width:300px;display:flex;flex-direction:column;gap:10px;">
+      <input id="bmName" placeholder="Name" style="padding:8px;border-radius:10px;border:none;background:#f2f2f2;">
+      <input id="bmURL" placeholder="https://..." style="padding:8px;border-radius:10px;border:none;background:#f2f2f2;">
+      <div class="icon-picker" id="iconPicker"></div>
+      <input id="bmIcon" placeholder="or custom icon" style="padding:8px;border-radius:10px;border:none;background:#f2f2f2;">
+      <button id="bmAdd" style="padding:8px;border:none;border-radius:10px;background:#ffd6e7;cursor:pointer;">Add</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const picker=document.getElementById('iconPicker');
+  emojiSet.forEach(e=>{
+    const s=document.createElement('span');
+    s.innerText=e;
+    s.onclick=()=>document.getElementById('bmIcon').value=e;
+    picker.appendChild(s);
+  });
+
+  document.getElementById('bmAdd').onclick=()=>{
+    const name=document.getElementById('bmName').value.trim();
+    const url=document.getElementById('bmURL').value.trim();
+    const iconVal=document.getElementById('bmIcon').value.trim();
+    if(!name||!url) return;
+
+    const newIcon=document.createElement('div');
+    newIcon.className='icon';
+
+    if(iconVal.startsWith('http')){
+      newIcon.innerHTML = `<img src="${iconVal}" style="width:22px;height:22px;object-fit:contain;">`;
+    }else{
+      newIcon.innerText = iconVal || '🔗';
+    }
+    newIcon.setAttribute('data-label',name);
+    newIcon.dataset.url=url;
+    newIcon.onclick=()=>openSite(url);
+
+    // add delete button
+    const del=document.createElement('div');
+    del.className='delete-icon';
+    del.innerText='✕';
+    del.onclick=(e)=>{
+      e.stopPropagation();
+      newIcon.remove();
+      saveBookmarks();
+      updateAddVisibility();
+    };
+    newIcon.appendChild(del);
+
+    grid.insertBefore(newIcon,el);
+    saveBookmarks();
+    updateAddVisibility();
+    modal.remove();
+  };
+
+  modal.onclick=e=>{if(e.target===modal) modal.remove();};
+}
+
+// DRAG & DROP REORDER (premium)
+// RIGHT CLICK EDIT + FOLDER
+function enableContext(){
+  document.querySelectorAll('.icon:not(.add-btn)').forEach(icon=>{
+    icon.oncontextmenu=(e)=>{
+      e.preventDefault();
+      const name=prompt('Edit name',icon.getAttribute('data-label'));
+      const url=prompt('Edit URL',icon.dataset.url||'');
+      if(name) icon.setAttribute('data-label',name);
+      if(url) icon.dataset.url=url;
+      saveBookmarks();
+    };
+
+    icon.ondblclick=(e)=>{
+      if(!icon.dataset.folder) return;
+      showFolder(icon,e.clientX,e.clientY);
+    };
+  });
+}
+
+function showFolder(icon,x,y){
+  let popup=document.getElementById('folderPopup');
+  if(!popup){
+    popup=document.createElement('div');
+    popup.id='folderPopup';
+    popup.className='folder-popup';
+    document.body.appendChild(popup);
+  }
+  popup.innerHTML='';
+  const items=JSON.parse(icon.dataset.folder||'[]');
+  items.forEach(it=>{
+    const i=document.createElement('div');
+    i.className='icon';
+    i.innerText=it.icon||'🔗';
+    i.onclick=()=>openSite(it.url);
+    popup.appendChild(i);
+  });
+  popup.style.left=x+'px';
+  popup.style.top=y+'px';
+  popup.style.display='flex';
+}
+
+document.addEventListener('click',()=>{
+  const p=document.getElementById('folderPopup');
+  if(p) p.style.display='none';
+});
+
+function enableDrag(){
+  document.querySelectorAll('.window.small .icon:not(.add-btn)').forEach(icon=>{
+    icon.draggable = true;
+
+    icon.addEventListener('dragstart', e=>{
+      icon.classList.add('dragging');
+      e.dataTransfer.setData('text/plain','');
+    });
+
+    icon.addEventListener('dragend', ()=>{
+      icon.classList.remove('dragging');
+      saveBookmarks();
+    });
+  });
+
+  document.querySelectorAll('.window.small .grid').forEach(grid=>{
+    grid.addEventListener('dragover', e=>{
+      e.preventDefault();
+      const dragging = document.querySelector('.dragging');
+      const after = getDragAfterElement(grid, e.clientY);
+      if(after == null){
+        grid.insertBefore(dragging, grid.querySelector('.add-btn'));
+      } else {
+        grid.insertBefore(dragging, after);
+      }
+    });
+  });
+}
+
+function getDragAfterElement(container, y){
+  const els = [...container.querySelectorAll('.icon:not(.dragging):not(.add-btn)')];
+  return els.reduce((closest, child)=>{
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if(offset < 0 && offset > closest.offset){
+      return {offset, element:child};
+    } else return closest;
+  }, {offset:Number.NEGATIVE_INFINITY}).element;
+}
+
+// load on start
+loadBookmarks();
+updateAddVisibility();
+enableDrag();
+enableContext();
+
+// re-enable drag after adding
+const originalAddBookmark = addBookmark;
+addBookmark = function(el){
+  originalAddBookmark(el);
+  setTimeout(enableDrag, 100);
+};
+
+// INIT ADD BUTTONS (fix click issue)
+loadBookmarks();
+updateAddVisibility();
+
+
+// INIT ADD BUTTONS (fix click issue)
+document.querySelectorAll('.add-btn').forEach(btn=>{
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    e.preventDefault();
+    addBookmark(this);
+  });
 });
 
 // TASK SYSTEM
